@@ -9,7 +9,7 @@ class SnipcartWebhooks_WebhooksController extends BaseController {
 	public function actionHandle() {
 		$this->requirePostRequest();
 
-		$json = file_get_contents('php://input');
+		$json = craft()->request->getRawBody();
 		$body = json_decode($json, true);
 
 		if (is_null($body) or !isset($body['eventName'])) {
