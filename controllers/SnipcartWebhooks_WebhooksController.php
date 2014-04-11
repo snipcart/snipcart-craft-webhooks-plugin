@@ -19,8 +19,7 @@ class SnipcartWebhooks_WebhooksController extends BaseController {
 
 		switch ($body['eventName']) {
 		    case 'order.completed':
-		        // This is an order:completed event
-		        // do what needs to be done here.
+		    	// We handle the order.completed event.
 		    	$this->processOrderCompletedEvent($body);
 		    	break;
 	    	default:
@@ -29,12 +28,45 @@ class SnipcartWebhooks_WebhooksController extends BaseController {
 		}
 	}
 
-	private function processOrderCompletedEvent($data) {
-		$this->returnJson($data);
-	}
-
 	private function returnBadRequest($errors = array()) {
 		header('HTTP/1.1 400 Bad Request');
 		$this->returnJson(array('success' => false, 'errors' => $errors));
+	}
+
+	private function processOrderCompletedEvent($data) {
+		$content = $data['content'];
+		$updated = array();
+		
+		foreach ($content['items'] as $item) {
+			$entry = $this->updateItemQuantity($item);
+
+			if ($entry != null) {
+				$updated[] = $entry;
+			}
+		}
+
+		$this->returnJson($updated);
+	}
+	
+	private function updateItemQuantity($item) {
+		$service = craft()->entries;
+
+		$entry = $service->getEntryById($item['id']);
+
+		if ($entry != null) {
+			$attrs = $entry->getContent();
+
+			$newQuantity = $attrs['quantity'] - $item['quantity'];
+
+			$entry->getContent()->setAttributes(array(
+				'quantity' => $newQuantity
+			));
+
+			$service->saveEntry($entry);
+
+			return $entry;
+		} else {
+			return null;
+		}
 	}
 }
