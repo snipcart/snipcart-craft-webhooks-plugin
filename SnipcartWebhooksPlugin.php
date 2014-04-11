@@ -3,19 +3,19 @@
 namespace Craft;
 
 class SnipcartWebhooksPlugin extends BasePlugin {
-	function getName() {
+	public function getName() {
 		return Craft::t('Snipcart Webhooks');
 	}
 
-	function getVersion() {
+	public function getVersion() {
 		return '0.1';
 	}
 
-	function getDeveloper() {
+	public function getDeveloper() {
 		return 'Snipcart';
 	}
 
-	function getDeveloperUrl() {
+	public function getDeveloperUrl() {
 		return 'https://snipcart.com';
 	}
 }
